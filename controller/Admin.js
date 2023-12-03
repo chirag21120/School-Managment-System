@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin');
+const Attendance = require('../models/attendance');
+const Teacher = require('../models/teachers');
+
 
 exports.register = async(req, res)=> {
     const { username, password } = req.body;
@@ -41,4 +44,23 @@ exports.getTeachersWithExcessiveLeaves = async function (req, res) {
     }
 };
 
+exports.calculateSalary = async (req,res)=>{
+    const {teacherId, year, month} = req.params;
+    const leaves = await Attendance.getLeavesTakenByMonth(teacherId,year,month);
+    const salary = await Teacher.getSalary(teacherId);
+    const minLeaves = 0;
+    if(leaves && salary){
+        if(leaves<=minLeaves){
+            res.status(200).json({salary: salary});
+        }
+        else{
+            const additionalLeaves = leaves - minLeaves;
+            const finalSalary = salary - (salary/30)*additionalLeaves;
+            res.status(200).json({salary:finalSalary});
+        }
+    }
+    else{
+        res.status(500).json({error:' Internal Server Error'});
+    }
+}
 

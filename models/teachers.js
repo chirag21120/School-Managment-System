@@ -16,3 +16,15 @@ exports.createTeacher = async(name, subject,salary) =>{
 }
 
 
+exports.getSalary = async(teacherId)=>{
+    const query = 'Select salary from teachers where teacher_id=$1';
+    const values = [teacherId];
+
+    try{
+    const val = await pool.query(query,values);
+    return val.rows[0].salary;
+    } catch(error){
+        console.error(error.stack);
+        return {success:false,error: 'Internal Server Error'};
+    }
+}
