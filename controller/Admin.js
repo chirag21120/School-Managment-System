@@ -23,11 +23,22 @@ exports.register = async(req, res)=> {
 exports.login =async(req, res)=> {
     const { username, password } = req.body;
     const admin = await Admin.getByUsername(username);
-
-    if (admin && await bcrypt.compare(password, admin.password)) {
+    if (admin && await bcrypt.compare(password, (admin.password).toString('utf-8'))) {
         res.status(200).json({ message: 'Login successful' });
     } else {
         res.status(401).json({ message: 'Invalid credentials' });
     }
 }
+
+exports.getTeachersWithExcessiveLeaves = async function (req, res) {
+
+    const teachers = await Admin.getTeachersWithExcessiveLeaves();
+
+    if (teachers !== null) {
+        res.status(200).json({ teachers });
+    } else {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 

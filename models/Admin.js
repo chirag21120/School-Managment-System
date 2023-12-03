@@ -25,3 +25,16 @@ exports.getByUsername = async(username)=> {
         return null;
     }
 }
+
+exports.getTeachersWithExcessiveLeaves = async ()=> {
+    const query = 'SELECT teacher_id, COUNT(*) FROM attendance GROUP BY teacher_id HAVING COUNT(*) >= $1';
+    const values = [7];
+
+    try {
+        const result = await pool.query(query, values);
+        return result.rows.map(row => row.teacher_id);
+    } catch (error) {
+        console.error(error.stack);
+        return null;
+    }
+};
